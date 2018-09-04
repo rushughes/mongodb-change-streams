@@ -32,4 +32,16 @@ router.post('/new', (req, res) => {
      });
    });
 
+   router.get('/', (req, res) => {
+     console.log('get');
+     Task.find({}, (err, task) => {
+       if (err) {
+         console.log('GET Error: ' + err);
+         res.status(500).send('Error');
+       } else if (task) {
+         res.status(200).json(task);
+       }
+     });
+   });
+
    module.exports = router;
