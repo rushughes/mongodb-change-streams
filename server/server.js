@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const api = require('./routes/api');
+const pusherRoute = require('./routes/pusher');
 const Pusher = require('pusher');
 
 require('dotenv').config();
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', api);
+app.use('/pusher', pusherRoute);
 
 mongoose.connect(process.env.MONGODB_URL, function(err) {
   if (err) {

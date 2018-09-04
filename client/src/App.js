@@ -84,13 +84,22 @@ class App extends Component {
   componentDidMount() {
     this.syncTasks();
     this.pusher = new Pusher(process.env.REACT_APP_PUSHER_APP_KEY, {
-          cluster: process.env.REACT_APP_PUSHER_APP_CLUSTER,
+      authEndpoint: 'http://localhost:9000/pusher/auth',
+      cluster: process.env.REACT_APP_PUSHER_APP_CLUSTER,
       encrypted: true,
     });
-    this.channel = this.pusher.subscribe('tasks');
 
+    this.channel = this.pusher.subscribe('tasks');
     this.channel.bind('inserted', this.addTask);
     this.channel.bind('deleted', this.removeTask);
+
+    this.privateChannel = this.pusher.subscribe('private-secrets');
+    this.privateChannel.bind('inserted', this.addTask);
+    this.privateChannel.bind('deleted', this.removeTask);
+
+    this.presenceChannel = this.pusher.subscribe('presence-secrets');
+    this.presenceChannel.bind('inserted', this.addTask);
+    this.presenceChannel.bind('deleted', this.removeTask);
   }
 
   render() {
