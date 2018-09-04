@@ -11,7 +11,8 @@ class App extends Component {
     super(props);
     this.state = {
       tasks: [],
-      task: ''
+      task: '',
+      name: ''
     };
     this.updateText = this.updateText.bind(this);
     this.postTask = this.postTask.bind(this);
@@ -19,6 +20,11 @@ class App extends Component {
     this.addTask = this.addTask.bind(this);
     this.removeTask = this.removeTask.bind(this);
     this.syncTasks = this.syncTasks.bind(this);
+    this.updateName = this.updateName.bind(this);
+  }
+
+  updateName(e) {
+    this.setState({ name: e.target.value });
   }
 
   updateText(e) {
@@ -31,7 +37,9 @@ class App extends Component {
       return;
     }
     const newTask = {
-      task: this.state.task
+      task: this.state.task,
+      name: this.state.name,
+      type: 'task'
     };
     fetch(API_URL + 'new', {
       method: 'post',
@@ -59,6 +67,7 @@ class App extends Component {
   }
 
   addTask(newTask) {
+    console.log('caught new task event: ' + newTask._id);
     this.setState(prevState => ({
       tasks: prevState.tasks.concat(newTask),
       task: ''
@@ -66,8 +75,9 @@ class App extends Component {
   }
 
   removeTask(id) {
+    console.log('caught remove event: ' + id);
     this.setState(prevState => ({
-      tasks: prevState.tasks.filter(el => el.id !== id)
+      tasks: prevState.tasks.filter(el => el._id !== id)
     }));
   }
 
@@ -85,12 +95,13 @@ class App extends Component {
 
   render() {
     let tasks = this.state.tasks.map(item =>
-      <Task key={item.id} task={item} onTaskClick={this.deleteTask} />
+      <Task key={item._id} task={item} onTaskClick={this.deleteTask} />
     );
 
     return (
       <div className="todo-wrapper">
         <form>
+          <input type="text" className="input-name" placeholder="Set name" onChange={this.updateName} value={this.state.name} />
           <input type="text" className="input-todo" placeholder="New task" onChange={this.updateText} value={this.state.task} />
           <div className="btn btn-add" onClick={this.postTask}>+</div>
         </form>
@@ -110,12 +121,13 @@ class Task extends Component {
     this._onClick = this._onClick.bind(this);
   }
   _onClick() {
-    this.props.onTaskClick(this.props.task.id);
+    this.props.onTaskClick(this.props.task._id);
   }
   render() {
+    console.log(this.props.task);
     return (
-      <li key={this.props.task.id}>
-        <div className="text">{this.props.task.task}</div>
+      <li key={this.props.task._id}>
+        <div className="text">@{this.props.task.name}: {this.props.task.task}</div>
         <div className="delete" onClick={this._onClick}>-</div>
       </li>
     );

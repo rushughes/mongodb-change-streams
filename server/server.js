@@ -59,8 +59,10 @@ db.once('open', () => {
         channel,
         'inserted',
         {
-          id: task._id,
+          _id: task._id,
+          name: task.name,
           task: task.task,
+          type: task.type,
         }
       );
     } else if(change.operationType === 'delete') {

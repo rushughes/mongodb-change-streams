@@ -6,7 +6,9 @@ const router = express.Router();
 router.post('/new', (req, res) => {
   console.log('router.post /new', req.body.task);
      Task.create({
+       name: req.body.name,
        task: req.body.task,
+       type: req.body.type
      }, (err, task) => {
        if (err) {
          console.log('CREATE Error: ' + err);
