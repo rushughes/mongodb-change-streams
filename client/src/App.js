@@ -18,6 +18,7 @@ class App extends Component {
     this.deleteTask = this.deleteTask.bind(this);
     this.addTask = this.addTask.bind(this);
     this.removeTask = this.removeTask.bind(this);
+    this.syncTasks = this.syncTasks.bind(this);
   }
 
   updateText(e) {
@@ -41,6 +42,16 @@ class App extends Component {
     }).then(console.log);
   }
 
+  syncTasks() {
+    fetch(API_URL)
+    .then(function(response) {
+     return response.json()
+   }).then(body => {
+     console.log('body' + body);
+     this.setState({ tasks: body })
+   });
+  }
+
   deleteTask(id) {
     fetch(API_URL + id, {
       method: 'delete'
@@ -61,6 +72,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    this.syncTasks();
     this.pusher = new Pusher(process.env.REACT_APP_PUSHER_APP_KEY, {
           cluster: process.env.REACT_APP_PUSHER_APP_CLUSTER,
       encrypted: true,
