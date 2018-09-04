@@ -28,7 +28,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', api);
 
-mongoose.connect(process.env.MONGODB_URI);
+//mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect('mongodb://127.0.0.1:27017/tasksDb?replicaSet=rs0', function(err) {
+  if (err) {
+    console.log(err);
+  }
+});
 
 const db = mongoose.connection;
 
@@ -47,28 +52,24 @@ db.once('open', () => {
   const changeStream = taskCollection.watch();
 
   changeStream.on('change', (change) => {
+    console.log(change);
 
+    if(change.operationType === 'insert') {
+      const task = change.fullDocument;
+      pusher.trigger(
+        channel,
+        'inserted',
+        {
+          id: task._id,
+          task: task.task,
+        }
+      );
+    } else if(change.operationType === 'delete') {
+      pusher.trigger(
+        channel,
+        'deleted',
+        change.documentKey._id
+      );
+    }
   });
-});
-
-changeStream.on('change', (change) => {
-  console.log(change);
-
-  if(change.operationType === 'insert') {
-    const task = change.fullDocument;
-    pusher.trigger(
-      channel,
-      'inserted',
-      {
-        id: task._id,
-        task: task.task,
-      }
-    );
-  } else if(change.operationType === 'delete') {
-    pusher.trigger(
-      channel,
-      'deleted',
-      change.documentKey._id
-    );
-  }
 });
